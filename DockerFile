@@ -28,3 +28,10 @@ EXPOSE 8080
 
 # Run the JAR file
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
+
+# Build image
+docker build -t smart-clinic .
+
+# Run container
+docker run -p 8080:8080 smart-clinic
