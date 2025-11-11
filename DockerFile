@@ -1,0 +1,30 @@
+# Step 1: Use Maven image to build the project
+FROM maven:3.9.2-eclipse-temurin-20 AS build
+
+# Set working directory inside the container
+WORKDIR /app
+
+# Copy pom.xml and download dependencies
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Copy all source code
+COPY src ./src
+
+# Build the Spring Boot application
+RUN mvn clean package -DskipTests
+
+# Step 2: Run the application using a lightweight JDK
+FROM eclipse-temurin:20-jdk-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy the JAR file from the build stage
+COPY --from=build /app/target/*.jar app.jar
+
+# Expose port (Spring Boot default 8080)
+EXPOSE 8080
+
+# Run the JAR file
+ENTRYPOINT ["java", "-jar", "app.jar"]
